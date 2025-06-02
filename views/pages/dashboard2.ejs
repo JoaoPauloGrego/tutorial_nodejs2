@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include("../partials/head")  %>
+<%- include("../partials/posttable")  %>
+
+<body>
+    Dashboard!
+    <a href="./login2"> Deslogar</a>
+    <a href="./index2">Voltar</a>
+</body>
+<style>
+    /* Estilos gerais */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f2f5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Container principal */
+body > .container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Título do dashboard */
+body > .container h1 {
+    color: #1a1a1a;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+}
+
+/* Links de navegação */
+nav {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 15px;
+}
+
+nav a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: 500;
+    padding: 8px 15px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+nav a:hover {
+    background-color: #007bff;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Estilo da tabela de usuários (caso não esteja no partial) */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #007bff;
+    color: white;
+}
+
+tr:hover {
+    background-color: #f5f5f5;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    body > .container {
+        margin: 10px;
+        padding: 15px;
+    }
+    
+    nav {
+        position: static;
+        justify-content: flex-end;
+        margin-bottom: 20px;
+    }
+    
+    nav a {
+        padding: 6px 12px;
+        font-size: 0.9em;
+    }
+    
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+}
+</style>
+
+</html>

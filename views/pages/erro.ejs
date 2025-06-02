@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include("../partials/head"); %>
+
+<body>
+    <%- include("../partials/menu"); %>
+    <main class="error-container">
+        <h1 class="error-title">HTTP ERROR 404 - PAGE NOT FOUND</h1>     
+        <img class="error-image" src="../static/404.png" alt="404 Error Illustration">
+        <br>
+        <a href="/index2" class="back-link">Voltar para a Página Inicial</a>
+    </main>
+    <%- include("../partials/footer"); %>
+</body>
+
+</html>
+
+<style>
+    /* Estilos consistentes com o tema principal */
+    body {
+        background-color: #f0f2f5;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .error-container {
+        background-color: white;
+        padding: 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        max-width: 600px;
+        width: 100%;
+        margin: 40px 0;
+    }
+
+    .error-title {
+        color: #1a1a1a;
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 3px solid #007bff;
+        font-style: normal;
+    }
+
+    .error-image {
+        align-self: center;
+        max-width: 300px;
+        height: auto;
+        margin: 2rem 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .back-link {
+        display: inline-block;
+        text-decoration: none;
+        color: #007bff;
+        font-weight: 500;
+        padding: 12px 25px;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+        border: 2px solid #007bff;
+        margin-top: 1rem;
+    }
+
+    .back-link:hover {
+        background-color: #007bff;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+    }
+
+    @media (max-width: 480px) {
+        .error-container {
+            padding: 1.5rem;
+            margin: 20px 15px;
+        }
+        
+        .error-title {
+            font-size: 1.75rem;
+        }
+        
+        .error-image {
+            max-width: 200px;
+        }
+        
+        .back-link {
+            padding: 10px 20px;
+        }
+    }
+</style>

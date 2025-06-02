@@ -1,0 +1,23 @@
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Senha</th>
+    </tr>
+    </thead>
+    <tbody><%let i = 0; for ( i = 0; i< dados.length ; i++)  { %> 
+        <tr>
+            <td><%- dados[i].id %></td>
+            <td><%- dados[i].username %></td>
+            <td><%- dados[i].password%></td>
+        </tr>
+
+   <% } %>
+    </tbody>
+    <tfooter>
+        <td colspan="3">
+  <%- `Qtd : ${dados.length}` %>  
+  </td>
+</tfooter>  
+</table>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro Concluído</title>
+</head>
+<body>
+    <main class="success-container">
+        <div class="status-message">
+            <svg class="success-icon" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z"/>
+            </svg>
+            <h1 class="success-title">Cadastro realizado com sucesso!</h1>
+            <p class="success-text">Você será redirecionado automaticamente ou pode continuar agora:</p>
+            
+            <div class="action-buttons">
+                <a href="/login2" class="cta-button">
+                    Fazer Login
+                </a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
+
+<style>
+    /* Estilos consistentes com o sistema */
+    body {
+        background-color: #f0f2f5;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        text-align: center;
+    }
+
+    .success-container {
+        background-color: white;
+        padding: 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+        width: 100%;
+        margin: 20px;
+    }
+
+    .success-icon {
+        width: 64px;
+        height: 64px;
+        color: #28a745;
+        margin-bottom: 1.5rem;
+    }
+
+    .success-title {
+        color: #1a1a1a;
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 3px solid #007bff;
+    }
+
+    .success-text {
+        color: #333;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin: 1.5rem 0;
+    }
+
+    .action-buttons {
+        margin-top: 2rem;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .cta-button {
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+        background-color: #007bff;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .cta-button:hover {
+        background-color: #0056b3;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+    }
+
+    @media (max-width: 480px) {
+        .success-container {
+            padding: 1.5rem;
+            margin: 15px;
+        }
+
+        .success-title {
+            font-size: 1.5rem;
+        }
+
+        .success-text {
+            font-size: 1rem;
+        }
+
+        .cta-button {
+            padding: 10px 25px;
+        }
+    }
+</style>

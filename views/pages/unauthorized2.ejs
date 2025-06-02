@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acesso Restrito</title>
+</head>
+<body>
+    <main class="status-container">
+        <div class="access-message">
+            <svg class="error-icon" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M12 1L21 5V11C21 16.55 17.16 21.74 12 23C6.84 21.74 3 16.55 3 11V5L12 1M16 14H8V16H16V14M16 10H8V12H16V10M8 6H16V8H8V6Z"/>
+            </svg>
+            <h1 class="status-title">Acesso Restrito</h1>
+            <p class="status-text">
+                Este conteúdo está disponível exclusivamente para<br>
+                usuários autorizados com permissão de visualização.
+            </p>
+            
+            <div class="action-buttons">
+                <a href="./index2" class="cta-button">
+                    Voltar à Página Inicial
+                </a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
+
+<style>
+    /* Estilos consistentes com o sistema */
+    body {
+        background-color: #f0f2f5;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        text-align: center;
+    }
+
+    .status-container {
+        background-color: white;
+        padding: 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        max-width: 500px;
+        width: 100%;
+        margin: 20px;
+    }
+
+    .error-icon {
+        width: 64px;
+        height: 64px;
+        color: #dc3545;
+        margin-bottom: 1.5rem;
+    }
+
+    .status-title {
+        color: #1a1a1a;
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 3px solid #007bff;
+    }
+
+    .status-text {
+        color: #333;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin: 1.5rem 0;
+    }
+
+    .action-buttons {
+        margin-top: 2rem;
+        display: flex;
+        justify-content: center;
+    }
+
+    .cta-button {
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+        background-color: #007bff;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .cta-button:hover {
+        background-color: #0056b3;
+        transform: translateY(-2px);
+        box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+    }
+
+    @media (max-width: 480px) {
+        .status-container {
+            padding: 1.5rem;
+            margin: 15px;
+        }
+
+        .status-title {
+            font-size: 1.5rem;
+        }
+
+        .status-text {
+            font-size: 1rem;
+        }
+
+        .cta-button {
+            width: 100%;
+            text-align: center;
+            padding: 12px 20px;
+        }
+    }
+</style>

@@ -1,0 +1,55 @@
+<style>
+    /* Estilos atualizados para corresponder ao tema base */
+    nav {
+        background-color: white;
+        padding: 1em;
+        display: flex;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: 100%;
+    }
+
+    nav ul {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        gap: 30px;
+    }
+
+    nav li {
+        list-style-type: none;
+        margin: 0;
+    }
+
+    nav a {
+        text-decoration: none;
+        color: #007bff;
+        font-weight: 500;
+        padding: 8px 15px;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+
+    nav a:hover {
+        background-color: #007bff;
+        color: white;
+        transform: translateY(-2px);
+    }
+</style>
+
+<header>
+    <nav>
+        <ul>
+            <li><a href="/index2">Home</a></li>
+            <li><a href="/sobre2">About</a></li>
+            <% if (!req.session.loggedin){ %>
+            <li><a href="/cadastro2">Cadastro</a></li>
+            <li><a href="/login2">Login</a></li>
+            <% } else { %>
+                <li><a href="/dashboard2">Dashboard</a></li>
+                <li><a href="/logout">Logout</a></li>
+                <li><a href="/post_create">Postar</a></li>
+            <% } %>
+        </ul>
+    </nav>
+</header>

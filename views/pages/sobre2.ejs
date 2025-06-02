@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <%- include("../partials/head") %>
+  <body>
+    <main class="about-container">
+      <article class="about-content">
+        <h1 class="main-title">Sobre Nossa Plataforma</h1>
+
+        <section class="about-section">
+          <h2 class="section-title">Nossa Missão</h2>
+          <p class="section-text">
+            Transformar a experiência digital através de soluções inovadoras e
+            acessíveis, proporcionando ferramentas que capacitam usuários e
+            impulsionam resultados.
+          </p>
+        </section>
+
+        <section class="about-section">
+          <h2 class="section-title">Nossa História</h2>
+          <p class="section-text">
+            Essa página foi criada para servir como um blog que, ao mesmo tempo,
+            serviu como um teste de como funciona o uso do node e de arquivos
+            .ejs em um projeto de desenvolvimento web.
+          </p>
+        </section>
+
+        <section class="about-section">
+          <h2 class="section-title">Valores Principais</h2>
+          <ul class="values-list">
+            <li>Inovação contínua</li>
+            <li>Experiência do usuário primeiro</li>
+            <li>Transparência nas operações</li>
+            <li>Compromisso com a excelência</li>
+          </ul>
+        </section>
+
+        <a href="./index2" class="cta-button">Voltar à Página Inicial</a>
+      </article>
+    </main>
+
+    <%- include("../partials/footer") %>
+  </body>
+</html>
+
+<style>
+  /* Estilos consistentes com o sistema de design */
+  body {
+    background-color: #f0f2f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .about-container {
+    background-color: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px;
+    margin: 40px 0;
+  }
+
+  .main-title {
+    color: #1a1a1a;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid #007bff;
+    text-align: center;
+  }
+
+  .about-section {
+    margin-bottom: 2.5rem;
+    padding: 1.5rem;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+  }
+
+  .section-title {
+    color: #007bff;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .section-text {
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+  }
+
+  .values-list {
+    list-style-type: none;
+    padding: 0;
+    display: grid;
+    gap: 0.8rem;
+  }
+
+  .values-list li {
+    padding: 0.8rem;
+    background-color: white;
+    border-left: 3px solid #007bff;
+    border-radius: 4px;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .cta-button {
+    display: block;
+    width: fit-content;
+    margin: 2rem auto 0;
+    text-decoration: none;
+    background-color: #007bff;
+    color: white;
+    padding: 12px 30px;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+  }
+
+  .cta-button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+  }
+
+  @media (max-width: 768px) {
+    .about-container {
+      padding: 1.5rem;
+      margin: 20px 15px;
+    }
+
+    .main-title {
+      font-size: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .main-title {
+      font-size: 1.75rem;
+    }
+
+    .cta-button {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>
