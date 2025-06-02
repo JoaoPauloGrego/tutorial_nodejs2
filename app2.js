@@ -9,12 +9,46 @@ const port = 8000;
 //conexão com banco de dados
 const db = new sqlite3.Database("users.db");
 db.serialize(() => {
+    // Tabela userAD (administradores)
     db.run(
-        "CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT)"
-    )
+        `CREATE TABLE IF NOT EXISTS userAD (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password TEXT,
+            function2 TEXT
+        )`,
+        (err) => {
+            if (err) console.error("Erro criando userAD:", err);
+            else console.log("Tabela userAD criada/verificada");
+        }
+    );
+
+    // Tabela users (usuários comuns)
     db.run(
-        "CREATE TABLE IF NOT EXISTS posts(id INTEGER PRIMARY KEY AUTOINCREMENT, iduser INTEGER,  title TEXT, content TEXT, datepost TEXT)",
-    )
+        `CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password TEXT
+        )`,
+        (err) => {
+            if (err) console.error("Erro criando users:", err);
+        }
+    );
+
+    // Tabela posts
+    db.run(
+        `CREATE TABLE IF NOT EXISTS posts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            iduser INTEGER,
+            title TEXT,
+            content TEXT,
+            datepost TEXT,
+            FOREIGN KEY(iduser) REFERENCES users(id)
+        )`,
+        (err) => {
+            if (err) console.error("Erro criando posts:", err);
+        }
+    );
 });
 
 app.use(
@@ -63,8 +97,8 @@ app.get("/cadastro2", (req, res) => {
 app.post("/cadastro2", (req, res) => {
     console.log("POST /cadastro2");
     console.log(JSON.stringify(req.body));
-    const { username, password } = req.body;
-    const query = "SELECT * FROM users WHERE username = ?";
+    const { username, password, function2 } = req.body;
+    const query = "SELECT * FROM userAD WHERE username = ? AND function2 = ?";
     db.get(query, [username], (err, row) => {
         if (err) throw err;
         console.log("query SELECT do cadastro: ", JSON.stringify(row));
@@ -72,8 +106,8 @@ app.post("/cadastro2", (req, res) => {
             console.log(`usuario:${username} já cadastrado`);
             res.redirect("/alreadysign");
         } else {
-            const insert = "INSERT INTO users (username, password) VALUES (?,?)";
-            db.get(insert, [username, password], (err, row) => {
+            const insert = "INSERT INTO userAD (username, password, function2) VALUES (?, ?, ?)";
+            db.get(insert, [username, password, function2], (err, row) => {
                 if (err) throw err;
                 console.log(`usuario:${username} já cadastrado`);
                 res.redirect("/sucessfullysigned")
@@ -101,22 +135,25 @@ app.get("/login2", (req, res) => {
 app.post("/login2", (req, res) => {
     console.log("POST /login2");
     console.log(JSON.stringify(req.body));
-    const { username, password } = req.body;
-    const query = "SELECT * FROM users WHERE username = ? AND password = ?";
-    db.get(query, [username, password], (err, row) => {
+    const { username, password, function2 } = req.body;
+    const query = "SELECT * FROM userAD WHERE username = ? AND password = ? AND function2 = ?";
+    db.get(query, [username, password, function2], (err, row) => {
         if (err) throw err;
         console.log(JSON.stringify(row));
         if (row) {
             req.session.username = username;
             req.session.loggedin = true;
             req.session.id_username = row.id;
-            res.redirect("/dashboard2");
-        } else {
-            res.redirect("/unauthorized2")
-        }
-        if(username == "admin" && password == "22112007"){
-            res.redirect("/modifiy");
+            req.session.function2 = function2;
+            if (row.function2 == "admin") {
+                res.redirect("/modify");
+            } else if
+                (row.function2 == "user") {
+                res.redirect("/dashboard2");
+            } else {
+                res.redirect("/unauthorized2")
             }
+        }
     });
 
 });
@@ -124,14 +161,19 @@ app.post("/login2", (req, res) => {
 app.get("/post_create", (req, res) => {
     console.log("GET /post_create");
     if (req.session.loggedin) {
-        res.render("pages/post_form", { titulo: "criar postagem", req: req })
+        res.render("pages/post_form", { titulo: "criar postagem", req: req, })
     } else {
         res.redirect("/unauthorized2")
     }
 });
 app.get("/posts", (req, res) => {
     console.log("GET /posts");
-    res.render("./pages/posts", { titulo: "posts", req: req });
+    const query = "SELECT * FROM posts";
+    db.all(query, [], (err, row) => {
+        if (err) throw err;
+        console.log(JSON.stringify(row));
+        res.render("./pages/posts", { titulo: "posts", req: req, dados: row, });
+    })
 });
 
 app.post("/post_create", (req, res) => {
@@ -149,13 +191,13 @@ app.post("/post_create", (req, res) => {
         res.send('Post Criado');
     })
 });
-app.get("/modify", (req, res)=> {
+app.get("/modify", (req, res) => {
     console.log("GET /modify");
-    if (req.session.loggedin && req.session.username == "admin"){
-        res.render("pages/modify", { titulo: "modificar", req: req })
-        } else {
-            res.redirect("/unauthorized2")
-            }
+    if (req.session.loggedin && req.session.function2 == "admin") {
+        res.render("./pages/modify", { titulo: "modificar", req: req })
+    } else {
+        res.redirect("/unauthorized2")
+    }
 })
 
 app.get("/logout", (req, res) => {
