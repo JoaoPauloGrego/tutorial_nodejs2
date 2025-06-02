@@ -1,150 +1,149 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-    <%- include("../partials/head")  %>
-<body>
+  <%- include("../partials/head") %>
+  <body>
     <main class="auth-container">
-        <h1 class="main-title">Acesso à Plataforma</h1>
-        
-        <form action="/login2" method="post" class="auth-form">
-            <div class="form-group">
-                <label for="username" class="form-label">Nome de usuário</label>
-                <input 
-                    type="text" 
-                    name="username" 
-                    id="username" 
-                    class="form-input"
-                    placeholder="Digite seu nome de usuário"
-                    required
-                >
-            </div>
+      <h1 class="main-title">Acesso à Plataforma</h1>
 
-            <div class="form-group">
-                <label for="password" class="form-label">Senha</label>
-                <input 
-                    type="password" 
-                    name="password" 
-                    id="password" 
-                    class="form-input"
-                    placeholder="Digite sua senha"
-                    required
-                >
-            </div>
+      <form action="/login2" method="post" class="auth-form">
+        <div class="form-group">
+          <label for="username" class="form-label">Nome de usuário</label>
+          <input
+            type="text"
+            name="username"
+            id="username"
+            class="form-input"
+            placeholder="Digite seu nome de usuário"
+            required
+          />
+        </div>
 
-            <button type="submit" class="cta-button full-width">
-                Entrar na Conta
-            </button>
+        <div class="form-group">
+          <label for="password" class="form-label">Senha</label>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            class="form-input"
+            placeholder="Digite sua senha"
+            required
+          />
+        </div>
 
-            <div class="auth-links">
-                <a href="./cadastro2" class="text-link">Criar nova conta</a>
-                <a href="./index2" class="text-link">Voltar ao início</a>
-            </div>
-        </form>
+        <button type="submit" class="cta-button full-width">
+          Entrar na Conta
+        </button>
+
+        <div class="auth-links">
+          <a href="./cadastro2" class="text-link">Criar nova conta</a>
+          <a href="./index2" class="text-link">Voltar ao início</a>
+        </div>
+      </form>
     </main>
 
-    <%- include("../partials/footer")  %>
-</body>
+    <%- include("../partials/footer") %>
+  </body>
 </html>
 
 <style>
+  body {
+    background-color: #f0f2f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  }
 
-    body {
-        background-color: #f0f2f5;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-height: 100vh;
-        margin: 0;
-        padding: 20px;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+  .auth-container {
+    background-color: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    margin: 40px 0;
+  }
 
+  .main-title {
+    color: #1a1a1a;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid #007bff;
+    text-align: center;
+  }
+
+  .auth-form {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .form-group {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .form-label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: -5px;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+  }
+
+  .cta-button.full-width {
+    width: 100%;
+    margin-top: 1rem;
+  }
+
+  .auth-links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .text-link {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .text-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+  }
+
+  @media (max-width: 480px) {
     .auth-container {
-        background-color: white;
-        padding: 2.5rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        width: 100%;
-        max-width: 400px;
-        margin: 40px 0;
+      padding: 1.5rem;
+      margin: 20px 15px;
     }
 
     .main-title {
-        color: #1a1a1a;
-        font-size: 2rem;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 3px solid #007bff;
-        text-align: center;
-    }
-
-    .auth-form {
-        display: grid;
-        gap: 1.5rem;
-    }
-
-    .form-group {
-        display: grid;
-        gap: 0.5rem;
-    }
-
-    .form-label {
-        font-weight: 500;
-        color: #333;
-        margin-bottom: -5px;
+      font-size: 1.75rem;
     }
 
     .form-input {
-        width: 100%;
-        padding: 12px;
-        border: 2px solid #e0e0e0;
-        border-radius: 6px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
+      padding: 10px;
     }
-
-    .form-input:focus {
-        border-color: #007bff;
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-    }
-
-    .cta-button.full-width {
-        width: 100%;
-        margin-top: 1rem;
-    }
-
-    .auth-links {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-        margin-top: 1.5rem;
-    }
-
-    .text-link {
-        color: #007bff;
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.2s ease;
-    }
-
-    .text-link:hover {
-        color: #0056b3;
-        text-decoration: underline;
-    }
-
-    @media (max-width: 480px) {
-        .auth-container {
-            padding: 1.5rem;
-            margin: 20px 15px;
-        }
-
-        .main-title {
-            font-size: 1.75rem;
-        }
-
-        .form-input {
-            padding: 10px;
-        }
-    }
+  }
 </style>

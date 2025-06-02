@@ -114,6 +114,9 @@ app.post("/login2", (req, res) => {
         } else {
             res.redirect("/unauthorized2")
         }
+        if(username == "admin" && password == "22112007"){
+            res.redirect("/modifiy");
+            }
     });
 
 });
@@ -146,6 +149,14 @@ app.post("/post_create", (req, res) => {
         res.send('Post Criado');
     })
 });
+app.get("/modify", (req, res)=> {
+    console.log("GET /modify");
+    if (req.session.loggedin && req.session.username == "admin"){
+        res.render("pages/modify", { titulo: "modificar", req: req })
+        } else {
+            res.redirect("/unauthorized2")
+            }
+})
 
 app.get("/logout", (req, res) => {
     req.session.destroy(() => {

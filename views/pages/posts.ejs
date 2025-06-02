@@ -22,7 +22,7 @@
         <h1><%- post.title %></h1>
         <div class="post-meta">
             <p><strong>Autor:</strong> Usuário #<%- post.iduser %></p>
-            <p><strong>Postado em:</strong> <%- new Date(post.datepost).toLocaleString() %></p>
+            <p><strong>Postado em:</strong> <%- new Date(post.datepost).toLocalString() %></p>
         </div>
         <div class="post-content">
             <%- post.content %>
