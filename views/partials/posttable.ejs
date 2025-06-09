@@ -1,4 +1,3 @@
-    <%- console.log("posttable: ", JSON.stringtify(dados)) %>
 <table>
   <thead>
     <tr>
@@ -10,14 +9,13 @@
     </tr>
   </thead>
   <tbody>
-
     <% let i = 0; for (i = 0; i < dados.length; i++) { %>
     <tr class="clickable-row" data-id="<%- dados[i].id %>">
       <td><%- dados[i].id %></td>
       <td><%- dados[i].iduser %></td>
       <td><%- dados[i].title %></td>
       <td><%- dados[i].content %></td>
-      <td><%- new Date(dados[i].datepost).toLocalDateString() %></td>
+      <td><%- new Date(dados[i].datepost).toLocaleDateString() %></td>
     </tr>
     <% } %>
   </tbody>

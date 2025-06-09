@@ -1,14 +1,14 @@
 <main>
-        <%- include("../partials/menu")  %>
+    <%- include("../partials/menu") %>
         <br>
-    <form action="post_create" method="post">
-<label for="titulo">Título: </label>
-<input id="title" name="title" required>
-<label for="content"></label><br><br>
-<textarea id="content" name="content" rows="10" cols="60" required></textarea>
-<br><br>
-<button type="submit">Postar</button>
-    </form>
+        <form action="/post_create" method="post">
+            <label for="titulo">Título: </label>
+            <input id="title" name="title" required>
+            <label for="content"></label><br><br>
+            <textarea id="content" name="content" rows="10" cols="60" required></textarea>
+            <br><br>
+            <button type="submit">Postar</button>
+        </form>
 </main>
 <style>
     body {

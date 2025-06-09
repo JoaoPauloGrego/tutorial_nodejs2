@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <%- include("../partials/head") %>
+  <body>
+    <h1>Dashboard (Administrador)</h1>
+    <p>Bem-vindo, <%= req.session.username %>!</p>
+    
+    <a href="/post_create">Criar novo post</a>
+    
+    <div class="table-container">
+      <%- include("../partials/table", {dados: dados, isAdmin: true}) %>
+    </div>
+  </body>
+</html>

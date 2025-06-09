@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<%- include("../partials/head") %>
+
+<body>
+  <div class="dashboard-container">
+    <div class="dashboard-header">
+      <h1 class="dashboard-title">Dashboard</h1>
+      <div class="user-info">
+        <div class="user-avatar">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm6 2H6a4 4 0 0 0-4 4v2h24v-2a4 4 0 0 0-4-4z"/>
+          </svg>
+        </div>
+        <div class="user-details">
+          <p class="welcome-message">Bem-vindo(a)</p>
+          <p class="username"><%= req.session.username %></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-actions">
+      <a href="/post_create" class="action-button create-button">
+        <span class="button-icon">+</span>
+        Criar novo post
+      </a>
+      <a href="/logout" class="action-button logout-button">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M16 17v-3h-5v-2h5V7l5 5-5 5zM14 2a2 2 0 0 1 2 2v2h-2V4H4v16h10v-2h2v2a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h10z"/>
+        </svg>
+        Sair
+      </a>
+    </div>
+
+    <div class="posts-section">
+      <div class="section-header">
+        <h2>Meus Posts</h2>
+        <div class="post-count">
+          <span><%= posts ? posts.length : 0 %></span> posts
+        </div>
+      </div>
+      
+      <div class="table-container">
+        <%- include("../partials/table", {posts: posts, isAdmin: false}) %>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+<style>
+/* Dashboard Container */
+.dashboard-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 30px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 25px;
+  border-bottom: 1px solid #f0f2f5;
+  margin-bottom: 30px;
+}
+
+.dashboard-title {
+  font-size: 2.2rem;
+  color: #1a1a1a;
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-avatar {
+  width: 60px;
+  height: 60px;
+  background: #e6f2ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-avatar svg {
+  width: 30px;
+  height: 30px;
+  fill: #007bff;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.welcome-message {
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.username {
+  margin: 3px 0 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #343a40;
+}
+
+/* Action Buttons */
+.dashboard-actions {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 40px;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 25px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.create-button {
+  background: #007bff;
+  color: white;
+  flex: 1;
+}
+
+.logout-button {
+  background: white;
+  color: #495057;
+  border: 1px solid #e9ecef;
+}
+
+.action-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
+.create-button:hover {
+  background: #0069d9;
+}
+
+.logout-button:hover {
+  background: #f8f9fa;
+}
+
+.button-icon {
+  font-size: 1.5rem;
+  font-weight: 300;
+}
+
+.logout-button svg {
+  width: 20px;
+  height: 20px;
+  fill: #6c757d;
+}
+
+/* Posts Section */
+.posts-section {
+  background: #f9fbfd;
+  border-radius: 14px;
+  padding: 25px;
+  border: 1px solid #edf2f9;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1a1a1a;
+}
+
+.post-count {
+  background: #e6f2ff;
+  color: #007bff;
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.post-count span {
+  font-size: 1.3rem;
+}
+
+/* Table Container */
+.table-container {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  
+  .dashboard-actions {
+    flex-direction: column;
+  }
+  
+  .dashboard-container {
+    padding: 20px;
+    margin: 20px;
+  }
+  
+  .posts-section {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-info {
+    width: 100%;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .dashboard-title {
+    font-size: 1.8rem;
+  }
+}
+</style>
