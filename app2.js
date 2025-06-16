@@ -17,6 +17,7 @@ db.serialize(() => {
     )
 });
 
+// Middleware de sessão (gerencia autenticação de usuários)
 app.use(
     session({
         secret: "senhaforteparacriptografarasessao",
@@ -24,32 +25,39 @@ app.use(
         saveUninitialized: true,
     })
 )
+
+// Servir arquivos estáticos (CSS, JS, imagens)
 app.use('/static', express.static(__dirname + '/static'));
 
+// Middleware para parsear dados de formulários
 app.use(express.urlencoded({ extended: true }));
 
 app.set('view engine', 'ejs');
 
+//Página inicial
 app.get("/index2", (req, res) => {
     console.log("GET /index2")
     res.render("./pages/index2", { titulo: "index2", req: req });
 });
 
+// Página "Sobre"
 app.get("/sobre2", (req, res) => {
     console.log("GET /sobre2");
     res.render("./pages/sobre2", { titulo: "sobre2", req: req });
 });
 
+// Dashboard principal (com controle de acesso)
 app.get("/dashboard2", (req, res) => {
   if (req.session.loggedin) {
-    const query = "SELECT * FROM posts ORDER BY datepost DESC";
-    
+    // Busca todos os posts ordenados por data
+    const query = "SELECT * FROM posts ORDER BY datepost DESC";    
     db.all(query, [], (err, posts) => {
       if (err) {
         console.error("Erro ao buscar posts:", err);
         posts = []; // Array vazio em caso de erro
       }
       
+        // Renderização diferenciada para admin/normal
       if (req.session.role === 'admin') {
         res.render("pages/dashboard_admin", { 
           titulo: "Dashboard Admin",
@@ -65,31 +73,39 @@ app.get("/dashboard2", (req, res) => {
       }
     });
   } else {
+     // Redireciona se não autenticado
     res.redirect("/unauthorized2");
   }
 });
 
 
+// Página de acesso não autorizado
 app.get("/unauthorized2", (req, res) =>
     res.render("pages/unauthorized2", { titulo: "Unauthorized", req: req })
 );
+
+// Formulário de cadastro de novos usuários
 app.get("/cadastro2", (req, res) => {
     console.log("GET /cadastro2");
     res.render("./pages/cadastro2", { titulo: "cadastro2", req: req });
 });
 
+// Processa cadastro de novo usuário
 app.post("/cadastro2", (req, res) => {
     console.log("POST /cadastro2");
     console.log(JSON.stringify(req.body));
     const { username, password, role } = req.body;
+    // Verifica se usuário já existe
     const query = "SELECT * FROM users WHERE username = ?";
     db.get(query, [username], (err, row) => {
         if (err) throw err;
         console.log("query SELECT do cadastro: ", JSON.stringify(row));
         if (row) {
             console.log(`usuario:${username} já cadastrado`);
+            // Usuário já cadastrado
             res.redirect("/alreadysign");
         } else {
+            // Cria novo usuário
             const insert = "INSERT INTO users (username, password, role) VALUES (?,?,?)";
             db.get(insert, [username, password], (err, row) => {
                 if (err) throw err;
@@ -99,40 +115,49 @@ app.post("/cadastro2", (req, res) => {
         }
     });
 });
+
+// Página de sucesso após cadastro
 app.get("/sucessfullysigned", (req, res) =>
     res.render("pages/sucessfullysigned", {
         titulo: "sucessfullysigned",
         req: req
     })
 );
+
+// Página de usuário já cadastrado
 app.get("/alreadysign", (req, res) =>
     res.render("pages/alreadysign", {
         titulo: "usuário já cadastrado",
         req: req
     })
 );
+
+// Formulário de login
 app.get("/login2", (req, res) => {
     console.log("GET /login2");
     res.render("./pages/login2", { titulo: "login2", req: req });
 });
 
+// Processa login de usuário
 app.post("/login2", (req, res) => {
     const { username, password } = req.body;
     const query = "SELECT * FROM users WHERE username = ? AND password = ?";
 
-    db.get(query, [username, password], (err, row) => {
+    db.get(query, [username, password, role], (err, row) => {
         if (err) {
             console.error(err);
             return res.redirect("/unauthorized2");
         }
 
-        if (row) {
+        if (row)   // Configura sessão do usuário 
+        {
             req.session.username = username;
             req.session.loggedin = true;
             req.session.id_username = row.id;
             req.session.role = row.role; // Armazena a role na sessão
 
             // Verificação do admin usando a ROLE (melhor que senha fixa)
+             // Redireciona conforme perfil
             if (row.role === 'admin') {
                 return res.redirect("/modify");
             } else {
@@ -144,6 +169,7 @@ app.post("/login2", (req, res) => {
     });
 });
 
+// Formulário de criação de novo post
 app.get("/post_create", (req, res) => {
     console.log("GET /post_create");
     
@@ -162,6 +188,8 @@ app.get("/posts", (req, res) => {
     res.render("./pages/posts", { titulo: "posts", req: req });
 });
 
+
+// Processa criação de novo post
 app.post("/post_create", (req, res) => {
     console.log("POST /post_create");
     
@@ -186,6 +214,7 @@ app.post("/post_create", (req, res) => {
 
     const query = "INSERT INTO posts (iduser, title, content, datepost) VALUES(?, ?, ?, ?)";
 
+    // Insere novo post no banco
     db.run(query, [req.session.id_username, title, content, datepost], function(err) {
         if (err) {
             console.error("Erro ao criar post:", err);
@@ -204,6 +233,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.json()); // Para analisar application/json
 // Busca dados para o painel admin
+
+// Página administrativa (acesso restrito a admin)
 app.get("/modify", (req, res) => {
     if (req.session.loggedin && req.session.role === 'admin') {
         // Buscar todos os usuários
@@ -247,7 +278,7 @@ app.get("/modify", (req, res) => {
     }
 });
 
-// Promover usuário
+// Promove usuário para admin
 app.post("/promote_user", (req, res) => {
     if (req.session.role === 'admin') {
         const userId = req.body.userId;
@@ -259,7 +290,7 @@ app.post("/promote_user", (req, res) => {
     }
 });
 
-// Rebaixar usuário
+// Rebaixa usuário para normal
 app.post("/demote_user", (req, res) => {
     if (req.session.role === 'admin') {
         const userId = req.body.userId;
@@ -270,7 +301,7 @@ app.post("/demote_user", (req, res) => {
     }
 });
 
-// Excluir usuário
+// Exclui usuário
 app.post("/delete_user", (req, res) => {
     if (req.session.role === 'admin') {
         const userId = req.body.userId;
@@ -281,7 +312,7 @@ app.post("/delete_user", (req, res) => {
     }
 });
 
-// Excluir post (pelo admin)
+// Exclui post (pelo admin)
 app.post("/delete_post_admin", (req, res) => {
     if (req.session.role === 'admin') {
         const postId = req.body.postId;
@@ -298,6 +329,8 @@ function logAction(username, action) {
     console.log(`[ADMIN ACTION] ${timestamp} | ${username}: ${action}`);
     // Implementar: salvar em tabela de logs no banco
 }
+
+// Exclui post (pelo usuário)
 app.post("/post_delete", (req, res) => {
     if (req.session.loggedin && req.session.role === 'admin') {
         const postId = req.body.postId;
@@ -313,12 +346,16 @@ app.post("/post_delete", (req, res) => {
         res.redirect("/unauthorized2");
     }
 });
+
+// Logout: Destrói sessão e redireciona
 app.get("/logout", (req, res) => {
     req.session.destroy(() => {
         res.redirect("/index2");
     });
 
 });
+
+// Tratamento de erros 404
 app.use('/{*erro}', (req, res) => {
     // Envia uma resposta de erro 404
     res.status(404).render('pages/erro', { titulo: "ERRO 404", req: req, msg: "404" });
@@ -326,6 +363,7 @@ app.use('/{*erro}', (req, res) => {
 const fs = require('fs');
 const path = require('path');
 
+// Cria backup do banco de dados
 app.post("/backup_db", (req, res) => {
     if (req.session.role === 'admin') {
         const backupDir = path.join(__dirname, 'backups');
@@ -346,7 +384,7 @@ app.post("/backup_db", (req, res) => {
                 return res.redirect("/modify?error=backup_failed");
             }
 
-            // Registrar no banco
+            // Registra no banco
             db.run("INSERT INTO backups (filename) VALUES (?)", [backupFilename], (err) => {
                 if (err) {
                     console.error("Failed to log backup:", err);
@@ -361,7 +399,7 @@ app.post("/backup_db", (req, res) => {
     }
 });
 
-
+// Inicialização do servidor
 app.listen(port, () => {
     console.log(__dirname + "\\static");
     console.log(`Server is running on port ${port}`);
