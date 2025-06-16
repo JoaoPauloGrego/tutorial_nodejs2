@@ -1,122 +1,182 @@
 const express = require('express');
 const session = require('express-session');
 const sqlite3 = require("sqlite3");
-//const bodyparser = require("body-parser");
+const cookieParser = require('cookie-parser');
+const fs = require('fs');
+const path = require('path');
+const { body, validationResult } = require('express-validator');
+const validator = require('validator');
 
 const app = express();
 const port = 8000;
 
-//conexão com banco de dados
+// Conexão com banco de dados
 const db = new sqlite3.Database("users.db");
 db.serialize(() => {
     db.run(
-        "CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT)"
-    )
+        "CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT, role TEXT)"
+    );
     db.run(
-        "CREATE TABLE IF NOT EXISTS posts(id INTEGER PRIMARY KEY AUTOINCREMENT, iduser INTEGER,  title TEXT, content TEXT, datepost TEXT)",
-    )
+        "CREATE TABLE IF NOT EXISTS posts(id INTEGER PRIMARY KEY AUTOINCREMENT, iduser INTEGER, title TEXT, content TEXT, datepost TEXT)"
+    );
+    db.run(
+        "CREATE TABLE IF NOT EXISTS backups(id INTEGER PRIMARY KEY AUTOINCREMENT, filename TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)"
+    );
 });
 
+// Middlewares
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(
     session({
         secret: "senhaforteparacriptografarasessao",
         resave: true,
         saveUninitialized: true,
     })
-)
+);
+
+// Middleware para cabeçalhos de segurança
+app.use((req, res, next) => {
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:");
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    next();
+});
+
 app.use('/static', express.static(__dirname + '/static'));
-
-app.use(express.urlencoded({ extended: true }));
-
 app.set('view engine', 'ejs');
 
+// Helper para conteúdo seguro
+app.locals.safeContent = function(content) {
+    return validator.escape(content).replace(/\n/g, '<br>');
+};
+
+// Helper para formatar datas
+app.locals.formatDate = function (dateString) {
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date)) return 'Data inválida';
+
+        return date.toLocaleDateString('pt-BR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+    } catch (e) {
+        return 'Erro de data';
+    }
+};
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    next();
+});
+// ============= ROTAS ============= //
+
+// Rotas públicas
 app.get("/index2", (req, res) => {
-    console.log("GET /index2")
     res.render("./pages/index2", { titulo: "index2", req: req });
 });
 
 app.get("/sobre2", (req, res) => {
-    console.log("GET /sobre2");
     res.render("./pages/sobre2", { titulo: "sobre2", req: req });
 });
 
-app.get("/dashboard2", (req, res) => {
-  if (req.session.loggedin) {
-    const query = "SELECT * FROM posts ORDER BY datepost DESC";
-    
-    db.all(query, [], (err, posts) => {
-      if (err) {
-        console.error("Erro ao buscar posts:", err);
-        posts = []; // Array vazio em caso de erro
-      }
-      
-      if (req.session.role === 'admin') {
-        res.render("pages/dashboard_admin", { 
-          titulo: "Dashboard Admin",
-          posts: posts,
-          req: req
-        });
-      } else {
-        res.render("pages/dashboard_normal", { 
-          titulo: "Meus Posts",
-          posts: posts, // Passando os posts para a partial
-          req: req
-        });
-      }
-    });
-  } else {
-    res.redirect("/unauthorized2");
-  }
-});
-
-
-app.get("/unauthorized2", (req, res) =>
-    res.render("pages/unauthorized2", { titulo: "Unauthorized", req: req })
-);
 app.get("/cadastro2", (req, res) => {
-    console.log("GET /cadastro2");
     res.render("./pages/cadastro2", { titulo: "cadastro2", req: req });
 });
 
-app.post("/cadastro2", (req, res) => {
-    console.log("POST /cadastro2");
-    console.log(JSON.stringify(req.body));
+app.get("/login2", (req, res) => {
+    res.render("./pages/login2", { titulo: "login2", req: req });
+});
+
+app.get("/sucessfullysigned", (req, res) => {
+    res.render("pages/sucessfullysigned", {
+        titulo: "sucessfullysigned",
+        req: req
+    });
+});
+
+app.get("/alreadysign", (req, res) => {
+    res.render("pages/alreadysign", {
+        titulo: "usuário já cadastrado",
+        req: req
+    });
+});
+
+app.get("/unauthorized2", (req, res) => {
+    res.render("pages/unauthorized2", { titulo: "Unauthorized", req: req });
+});
+
+// Rotas de autenticação
+app.post("/cadastro2", [
+    body('username')
+        .notEmpty().withMessage('O nome de usuário é obrigatório')
+        .isLength({ min: 3, max: 20 }).withMessage('O nome deve ter entre 3 e 20 caracteres')
+        .trim()
+        .escape(),
+    
+    body('password')
+        .notEmpty().withMessage('A senha é obrigatória')
+        .isLength({ min: 6 }).withMessage('A senha deve ter no mínimo 6 caracteres')
+], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).render('pages/cadastro2', {
+            titulo: "cadastro2",
+            req: req,
+            errors: errors.array(),
+            oldInput: req.body
+        });
+    }
+
     const { username, password, role } = req.body;
     const query = "SELECT * FROM users WHERE username = ?";
+
     db.get(query, [username], (err, row) => {
-        if (err) throw err;
-        console.log("query SELECT do cadastro: ", JSON.stringify(row));
+        if (err) {
+            console.error(err);
+            return res.redirect("/alreadysign");
+        }
+
         if (row) {
-            console.log(`usuario:${username} já cadastrado`);
+            console.log(`Usuário ${username} já cadastrado`);
             res.redirect("/alreadysign");
         } else {
-            const insert = "INSERT INTO users (username, password, role) VALUES (?,?,?)";
-            db.get(insert, [username, password], (err, row) => {
-                if (err) throw err;
-                console.log(`usuario:${username} já cadastrado`);
-                res.redirect("/sucessfullysigned")
+            const insert = "INSERT INTO users (username, password, role) VALUES (?, ?, ?)";
+            db.run(insert, [username, password, role || 'normal'], function (err) {
+                if (err) {
+                    console.error(err);
+                    return res.redirect("/alreadysign");
+                }
+                console.log(`Usuário ${username} cadastrado com sucesso`);
+                res.redirect("/sucessfullysigned");
             });
         }
     });
 });
-app.get("/sucessfullysigned", (req, res) =>
-    res.render("pages/sucessfullysigned", {
-        titulo: "sucessfullysigned",
-        req: req
-    })
-);
-app.get("/alreadysign", (req, res) =>
-    res.render("pages/alreadysign", {
-        titulo: "usuário já cadastrado",
-        req: req
-    })
-);
-app.get("/login2", (req, res) => {
-    console.log("GET /login2");
-    res.render("./pages/login2", { titulo: "login2", req: req });
-});
 
-app.post("/login2", (req, res) => {
+app.post("/login2", [
+    body('username')
+        .notEmpty().withMessage('O nome de usuário é obrigatório')
+        .trim()
+        .escape(),
+    
+    body('password')
+        .notEmpty().withMessage('A senha é obrigatória')
+], (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).render('pages/login2', {
+            titulo: "login2",
+            req: req,
+            errors: errors.array(),
+            oldInput: req.body
+        });
+    }
+
     const { username, password } = req.body;
     const query = "SELECT * FROM users WHERE username = ? AND password = ?";
 
@@ -130,9 +190,8 @@ app.post("/login2", (req, res) => {
             req.session.username = username;
             req.session.loggedin = true;
             req.session.id_username = row.id;
-            req.session.role = row.role; // Armazena a role na sessão
+            req.session.role = row.role;
 
-            // Verificação do admin usando a ROLE (melhor que senha fixa)
             if (row.role === 'admin') {
                 return res.redirect("/modify");
             } else {
@@ -144,49 +203,109 @@ app.post("/login2", (req, res) => {
     });
 });
 
-app.get("/post_create", (req, res) => {
-    console.log("GET /post_create");
-    
-    if (req.session.loggedin) {
-        res.render("pages/post_form", { 
-            titulo: "Criar Postagem",
-            req: req 
+// Rotas protegidas
+app.get("/dashboard2", (req, res) => {
+    if (!req.session.loggedin) return res.redirect("/unauthorized2");
+
+    const query = "SELECT * FROM posts ORDER BY datepost DESC";
+
+    db.all(query, [], (err, posts) => {
+        if (err) {
+            console.error("Erro ao buscar posts:", err);
+            posts = [];
+        }
+
+        if (req.session.role === 'admin') {
+            res.render("pages/dashboard_admin", {
+                titulo: "Dashboard Admin",
+                posts: posts,
+                req: req
+            });
+        } else {
+            res.render("pages/dashboard_normal", {
+                titulo: "Meus Posts",
+                posts: posts,
+                req: req
+            });
+        }
+    });
+});
+
+app.get("/post/:id", (req, res) => {
+    if (!req.session.loggedin) return res.redirect("/unauthorized2");
+
+    const postId = req.params.id;
+    const query = `
+        SELECT posts.*, users.username 
+        FROM posts 
+        JOIN users ON posts.iduser = users.id
+        WHERE posts.id = ?
+    `;
+
+    db.get(query, [postId], (err, post) => {
+        if (err) {
+            console.error("Erro ao buscar post:", err);
+            return res.status(500).render('pages/error', {
+                message: "Erro ao carregar post"
+            });
+        }
+
+        if (!post) {
+            return res.status(404).render('pages/error', {
+                message: "Post não encontrado"
+            });
+        }
+
+        res.render("pages/post_detail", {
+            titulo: post.title,
+            post: post,
+            req: req
         });
-    } else {
-        res.redirect("/unauthorized2");
-    }
+    });
 });
 
-app.get("/posts", (req, res) => {
-    console.log("GET /posts");
-    res.render("./pages/posts", { titulo: "posts", req: req });
-});
-
-app.post("/post_create", (req, res) => {
-    console.log("POST /post_create");
+app.get("/post_create", (req, res) => {
+    if (!req.session.loggedin) return res.redirect("/unauthorized2");
     
-    // Verificação de segurança
+    res.render("pages/post_form", {
+        titulo: "Criar Postagem",
+        req: req,
+        oldInput: req.body
+    });
+});
+
+app.post("/post_create", [
+    body('title')
+        .notEmpty().withMessage('O título é obrigatório')
+        .isLength({ min: 5, max: 100 }).withMessage('O título deve ter entre 5 e 100 caracteres')
+        .trim()
+        .escape(),
+    
+    body('content')
+        .notEmpty().withMessage('O conteúdo é obrigatório')
+        .isLength({ min: 10 }).withMessage('O conteúdo deve ter no mínimo 10 caracteres')
+], (req, res) => {
+    // Verificar erros de validação
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).render('pages/post_form', {
+            titulo: "Criar Postagem",
+            req: req,
+            errors: errors.array(),
+            oldInput: req.body
+        });
+    }
+
     if (!req.session.loggedin || !req.session.id_username) {
         return res.redirect("/unauthorized2");
     }
-    
-    console.log("dados da postagem", req.body);
-    
-    if (!req.body || !req.body.title || !req.body.content) {
-        console.error("Dados incompletos:", req.body);
-        return res.status(400).send("Título e conteúdo são obrigatórios");
-    }
-    
+
     const { title, content } = req.body;
     const datepost = new Date().toISOString();
-    
-    console.log("Data de criação: ", datepost, 
-                "Username: ", req.session.username, 
-                "id username: ", req.session.id_username);
 
     const query = "INSERT INTO posts (iduser, title, content, datepost) VALUES(?, ?, ?, ?)";
 
-    db.run(query, [req.session.id_username, title, content, datepost], function(err) {
+    db.run(query, [req.session.id_username, title, content, datepost], function (err) {
         if (err) {
             console.error("Erro ao criar post:", err);
             return res.status(500).render("pages/error", {
@@ -199,170 +318,306 @@ app.post("/post_create", (req, res) => {
     });
 });
 
-app.use(express.urlencoded({ extended: true }));
+app.get("/post_edit/:id", (req, res) => {
+    if (!req.session.loggedin) return res.redirect("/unauthorized2");
 
+    const postId = req.params.id;
+    const query = "SELECT * FROM posts WHERE id = ?";
 
-app.use(express.json()); // Para analisar application/json
-// Busca dados para o painel admin
+    db.get(query, [postId], (err, post) => {
+        if (err) {
+            console.error("Erro ao buscar post:", err);
+            return res.status(500).render('pages/error', {
+                message: "Erro ao carregar post para edição",
+                error: err
+            });
+        }
+
+        if (!post) {
+            return res.status(404).render('pages/error', {
+                message: "Post não encontrado",
+                error: { status: 404 }
+            });
+        }
+
+        // Verificar permissões
+        const isAuthor = req.session.id_username == post.iduser;
+        const isAdmin = req.session.role === 'admin';
+
+        if (!isAuthor && !isAdmin) return res.redirect("/unauthorized2");
+
+        res.render("pages/post_edit", {
+            titulo: "Editar Postagem",
+            post: post,
+            req: req,
+            errors: [], // Array vazio para erros
+            oldInput: {} // Objeto vazio para oldInput
+        });
+    });
+});
+
+app.post("/post_edit/:id", [
+    body('title')
+        .notEmpty().withMessage('O título é obrigatório')
+        .isLength({ min: 5, max: 100 }).withMessage('O título deve ter entre 5 e 100 caracteres')
+        .trim()
+        .escape(),
+    
+    body('content')
+        .notEmpty().withMessage('O conteúdo é obrigatório')
+        .isLength({ min: 10 }).withMessage('O conteúdo deve ter no mínimo 10 caracteres')
+], (req, res) => {
+    // Verificar erros de validação
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return db.get("SELECT * FROM posts WHERE id = ?", [req.params.id], (err, post) => {
+            if (err || !post) {
+                return res.redirect("/dashboard2?error=post_not_found");
+            }
+            
+            res.status(400).render('pages/post_edit', {
+                titulo: "Editar Postagem",
+                post: post,
+                req: req,
+                errors: errors.array(),
+                oldInput: req.body
+            });
+        });
+    }
+
+    if (!req.session.loggedin) return res.redirect("/unauthorized2");
+
+    const postId = req.params.id;
+    const { title, content } = req.body;
+    
+    // Verificar permissões
+    db.get("SELECT * FROM posts WHERE id = ?", [postId], (err, post) => {
+        if (err || !post) {
+            console.error("Erro ao buscar post:", err);
+            return res.redirect("/dashboard2?error=post_not_found");
+        }
+        
+        const isAuthor = req.session.id_username == post.iduser;
+        const isAdmin = req.session.role === 'admin';
+        
+        if (!isAuthor && !isAdmin) return res.redirect("/unauthorized2");
+
+        // Atualizar o post
+        const updateQuery = `
+            UPDATE posts 
+            SET title = ?, content = ?, datepost = datetime('now')
+            WHERE id = ?
+        `;
+        
+        db.run(updateQuery, [title, content, postId], function(err) {
+            if (err) {
+                console.error("Erro ao atualizar post:", err);
+                return res.redirect(`/post_edit/${postId}?error=update_failed`);
+            }
+            
+            console.log(`Post ${postId} atualizado com sucesso`);
+            res.redirect("/dashboard2?success=post_updated");
+        });
+    });
+});
+
+// Rotas administrativas
 app.get("/modify", (req, res) => {
-    if (req.session.loggedin && req.session.role === 'admin') {
-        // Buscar todos os usuários
-        db.all("SELECT id, username, role FROM users", [], (err, users) => {
-            if (err) throw err;
+    if (!req.session.loggedin || req.session.role !== 'admin') {
+        return res.redirect("/unauthorized2");
+    }
 
-            // Buscar todos os posts com nome de usuário
-            db.all(`
-        SELECT posts.*, users.username 
-        FROM posts 
+    db.all("SELECT id, username, role FROM users", [], (err, users) => {
+        if (err) {
+            console.error(err);
+            return res.redirect("/unauthorized2");
+        }
+
+        // Página principal do admin (apenas usuários)
+        db.get("SELECT COUNT(*) AS count FROM users", [], (err, userCount) => {
+            db.get("SELECT COUNT(*) AS count FROM users WHERE role = 'admin'", [], (err, adminCount) => {
+                res.render("pages/modify", {
+                    titulo: "Painel Admin",
+                    users: users,
+                    userCount: userCount.count,
+                    adminCount: adminCount.count,
+                    req: req
+                });
+            });
+        });
+    });
+});
+
+// Nova rota para gerenciamento de posts
+app.get("/modify/posts", (req, res) => {
+    if (!req.session.loggedin || req.session.role !== 'admin') {
+        return res.redirect("/unauthorized2");
+    }
+
+    db.all(`
+        SELECT posts.*, users.username
+        FROM posts
         JOIN users ON posts.iduser = users.id
-      `, [], (err, posts) => {
-                if (err) throw err;
+    `, [], (err, posts) => {
+        if (err) {
+            console.error(err);
+            return res.redirect("/unauthorized2");
+        }
 
-                // Buscar estatísticas (exemplo simplificado)
-                db.get("SELECT COUNT(*) AS count FROM users", [], (err, userCount) => {
-                    db.get("SELECT COUNT(*) AS count FROM users WHERE role = 'admin'", [], (err, adminCount) => {
-                        db.get("SELECT COUNT(*) AS count FROM posts", [], (err, postCount) => {
-                            db.get("SELECT MAX(created_at) AS last_backup FROM backups", [], (err, backupResult) => {
-                                const lastBackup = backupResult ? backupResult.last_backup : null;
-                                // Renderizar a página com todos os dados
-                                res.render("pages/modify", {
-                                    titulo: "Painel Admin",
-                                    users: users,
-                                    posts: posts,
-                                    userCount: userCount.count,
-                                    adminCount: adminCount.count,
-                                    postCount: postCount.count,
-                                    lastBackup: lastBackup,
-                                     logs: [],
-                                    req: req
-                                });
-                            });
-                        });
+        res.render("pages/posts_admin", {
+            titulo: "Gerenciamento de Posts",
+            posts: posts,
+            req: req
+        });
+    });
+});
+
+// Nova rota para ferramentas do sistema
+app.get("/modify/tools", (req, res) => {
+    if (!req.session.loggedin || req.session.role !== 'admin') {
+        return res.redirect("/unauthorized2");
+    }
+
+    db.get("SELECT COUNT(*) AS count FROM users", [], (err, userCount) => {
+        db.get("SELECT COUNT(*) AS count FROM users WHERE role = 'admin'", [], (err, adminCount) => {
+            db.get("SELECT COUNT(*) AS count FROM posts", [], (err, postCount) => {
+                db.get("SELECT MAX(created_at) AS last_backup FROM backups", [], (err, backupResult) => {
+                    const lastBackup = backupResult ? backupResult.last_backup : null;
+                    
+                    // Logs de exemplo (substitua por implementação real)
+                    const logs = [
+                        { timestamp: new Date().toISOString(), message: "Acesso às ferramentas" },
+                        { timestamp: new Date(Date.now() - 3600000).toISOString(), message: "Backup realizado" }
+                    ];
+                    
+                    res.render("pages/tools_admin", {
+                        titulo: "Ferramentas do Sistema",
+                        userCount: userCount.count,
+                        adminCount: adminCount.count,
+                        postCount: postCount.count,
+                        lastBackup: lastBackup,
+                        logs: logs,
+                        req: req
                     });
                 });
-            })
-        })
-    } else {
-        res.redirect("/unauthorized2");
-    }
+            });
+        });
+    });
 });
 
-// Promover usuário
+// Atualize as ações para redirecionar para as páginas corretas
 app.post("/promote_user", (req, res) => {
-    if (req.session.role === 'admin') {
-        const userId = req.body.userId;
-        db.run("UPDATE users SET role='admin' WHERE id=?", [userId], (err) => {
-            // Registrar ação em logs
-            logAction(req.session.username, `Promoveu usuário ${userId} para admin`);
-            res.redirect("/modify");
-        });
-    }
+    if (req.session.role !== 'admin') return res.redirect("/unauthorized2");
+    
+    const userId = req.body.userId;
+    db.run("UPDATE users SET role='admin' WHERE id=?", [userId], (err) => {
+        if (err) console.error(err);
+        res.redirect("/modify");
+    });
 });
 
-// Rebaixar usuário
 app.post("/demote_user", (req, res) => {
-    if (req.session.role === 'admin') {
-        const userId = req.body.userId;
-        db.run("UPDATE users SET role='normal' WHERE id=?", [userId], (err) => {
-            logAction(req.session.username, `Rebaixou usuário ${userId} para normal`);
-            res.redirect("/modify");
-        });
-    }
+    if (req.session.role !== 'admin') return res.redirect("/unauthorized2");
+    
+    const userId = req.body.userId;
+    db.run("UPDATE users SET role='normal' WHERE id=?", [userId], (err) => {
+        if (err) console.error(err);
+        res.redirect("/modify");
+    });
 });
 
-// Excluir usuário
 app.post("/delete_user", (req, res) => {
-    if (req.session.role === 'admin') {
-        const userId = req.body.userId;
-        db.run("DELETE FROM users WHERE id=?", [userId], (err) => {
-            logAction(req.session.username, `Excluiu usuário ${userId}`);
-            res.redirect("/modify");
-        });
-    }
+    if (req.session.role !== 'admin') return res.redirect("/unauthorized2");
+    
+    const userId = req.body.userId;
+    db.run("DELETE FROM users WHERE id=?", [userId], (err) => {
+        if (err) console.error(err);
+        res.redirect("/modify");
+    });
 });
 
-// Excluir post (pelo admin)
 app.post("/delete_post_admin", (req, res) => {
-    if (req.session.role === 'admin') {
-        const postId = req.body.postId;
-        db.run("DELETE FROM posts WHERE id=?", [postId], (err) => {
-            logAction(req.session.username, `Excluiu post ${postId}`);
-            res.redirect("/modify#posts-tab");
-        });
-    }
+    if (req.session.role !== 'admin') return res.redirect("/unauthorized2");
+    
+    const postId = req.body.postId;
+    db.run("DELETE FROM posts WHERE id=?", [postId], (err) => {
+        if (err) console.error(err);
+        res.redirect("/modify/posts");
+    });
 });
 
-// Função para registrar ações (simplificada)
-function logAction(username, action) {
-    const timestamp = new Date().toISOString();
-    console.log(`[ADMIN ACTION] ${timestamp} | ${username}: ${action}`);
-    // Implementar: salvar em tabela de logs no banco
-}
 app.post("/post_delete", (req, res) => {
-    if (req.session.loggedin && req.session.role === 'admin') {
-        const postId = req.body.postId;
-        db.run("DELETE FROM posts WHERE id = ?", [postId], (err) => {
-            if (err) {
-                console.error(err);
-                res.send("Erro ao deletar post");
-            } else {
-                res.redirect("/dashboard2");
-            }
-        });
-    } else {
-        res.redirect("/unauthorized2");
+    if (!req.session.loggedin || req.session.role !== 'admin') {
+        return res.redirect("/unauthorized2");
     }
+
+    const postId = req.body.postId;
+    db.run("DELETE FROM posts WHERE id = ?", [postId], (err) => {
+        if (err) {
+            console.error(err);
+            res.send("Erro ao deletar post");
+        } else {
+            res.redirect("/dashboard2");
+        }
+    });
 });
+
+// Rotas de logout e backup
 app.get("/logout", (req, res) => {
     req.session.destroy(() => {
         res.redirect("/index2");
     });
-
 });
-app.use('/{*erro}', (req, res) => {
-    // Envia uma resposta de erro 404
-    res.status(404).render('pages/erro', { titulo: "ERRO 404", req: req, msg: "404" });
-});
-const fs = require('fs');
-const path = require('path');
 
 app.post("/backup_db", (req, res) => {
-    if (req.session.role === 'admin') {
-        const backupDir = path.join(__dirname, 'backups');
+    if (req.session.role !== 'admin') return res.redirect("/unauthorized2");
 
-        // Criar diretório se não existir
-        if (!fs.existsSync(backupDir)) {
-            fs.mkdirSync(backupDir);
+    const backupDir = path.join(__dirname, 'backups');
+
+    if (!fs.existsSync(backupDir)) {
+        fs.mkdirSync(backupDir);
+    }
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const backupFilename = `backup-${timestamp}.db`;
+    const backupPath = path.join(backupDir, backupFilename);
+
+    fs.copyFile('users.db', backupPath, (err) => {
+        if (err) {
+            console.error("Backup failed:", err);
+            return res.redirect("/modify?error=backup_failed");
         }
 
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const backupFilename = `backup-${timestamp}.db`;
-        const backupPath = path.join(backupDir, backupFilename);
-
-        // Copiar o arquivo do banco de dados
-        fs.copyFile('users.db', backupPath, (err) => {
-            if (err) {
-                console.error("Backup failed:", err);
-                return res.redirect("/modify?error=backup_failed");
-            }
-
-            // Registrar no banco
-            db.run("INSERT INTO backups (filename) VALUES (?)", [backupFilename], (err) => {
-                if (err) {
-                    console.error("Failed to log backup:", err);
-                }
-
-                logAction(req.session.username, `Backup criado: ${backupFilename}`);
-                res.redirect("/modify?success=backup_created");
-            });
+        db.run("INSERT INTO backups (filename) VALUES (?)", [backupFilename], (err) => {
+            if (err) console.error("Failed to log backup:", err);
+            res.redirect("/modify?success=backup_created");
         });
-    } else {
-        res.redirect("/unauthorized2");
-    }
+    });
 });
 
+// Rotas de teste de cookies
+app.get('/set-cookie', (req, res) => {
+    res.cookie('usuarioToken', 'token-local-simples', {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'Lax',
+        maxAge: 1000 * 60 * 60,
+        path: '/'
+    });
+    res.send('Cookie local definido!');
+});
 
+app.get('/ver-cookie', (req, res) => {
+    const token = req.cookies.usuarioToken;
+    res.send(token ? `Cookie recebido: ${token}` : 'Nenhum cookie encontrado.');
+});
+
+// Rota de erro 404
+app.use((req, res) => {
+    res.status(404).render('pages/erro', { titulo: "ERRO 404", req: req, msg: "404" });
+});
+
+// Iniciar servidor
 app.listen(port, () => {
-    console.log(__dirname + "\\static");
     console.log(`Server is running on port ${port}`);
 });
