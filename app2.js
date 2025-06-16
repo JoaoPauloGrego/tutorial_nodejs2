@@ -1,6 +1,6 @@
 const express = require('express');
-const session = require('express-session');
-const sqlite3 = require("sqlite3");
+const session = require('express-session'); // Para gerenciamento de sessões
+const sqlite3 = require("sqlite3"); // Banco de dados SQLite
 //const bodyparser = require("body-parser");
 
 const app = express();
@@ -8,6 +8,8 @@ const port = 8000;
 
 //conexão com banco de dados
 const db = new sqlite3.Database("users.db");
+
+// Cria tabelas se não existirem
 db.serialize(() => {
     db.run(
         "CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, password TEXT)"
@@ -20,7 +22,7 @@ db.serialize(() => {
 // Middleware de sessão (gerencia autenticação de usuários)
 app.use(
     session({
-        secret: "senhaforteparacriptografarasessao",
+        secret: "senhaforteparacriptografarasessao", // Chave secreta para criptografia
         resave: true,
         saveUninitialized: true,
     })
@@ -29,9 +31,10 @@ app.use(
 // Servir arquivos estáticos (CSS, JS, imagens)
 app.use('/static', express.static(__dirname + '/static'));
 
-// Middleware para parsear dados de formulários
+// Middleware para analisar dados de formulários
 app.use(express.urlencoded({ extended: true }));
 
+// Configura EJS como engine de templates
 app.set('view engine', 'ejs');
 
 //Página inicial
@@ -154,9 +157,8 @@ app.post("/login2", (req, res) => {
             req.session.username = username;
             req.session.loggedin = true;
             req.session.id_username = row.id;
-            req.session.role = row.role; // Armazena a role na sessão
+            req.session.role = row.role; // Armazena perfil do usuário
 
-            // Verificação do admin usando a ROLE (melhor que senha fixa)
              // Redireciona conforme perfil
             if (row.role === 'admin') {
                 return res.redirect("/modify");
@@ -172,7 +174,6 @@ app.post("/login2", (req, res) => {
 // Formulário de criação de novo post
 app.get("/post_create", (req, res) => {
     console.log("GET /post_create");
-    
     if (req.session.loggedin) {
         res.render("pages/post_form", { 
             titulo: "Criar Postagem",
@@ -284,7 +285,7 @@ app.post("/promote_user", (req, res) => {
         const userId = req.body.userId;
         db.run("UPDATE users SET role='admin' WHERE id=?", [userId], (err) => {
             // Registrar ação em logs
-            logAction(req.session.username, `Promoveu usuário ${userId} para admin`);
+            logAction(req.session.username, `Promoveu usuário ${userId} para admin`); // Registro de ação
             res.redirect("/modify");
         });
     }
@@ -384,7 +385,7 @@ app.post("/backup_db", (req, res) => {
                 return res.redirect("/modify?error=backup_failed");
             }
 
-            // Registra no banco
+              // Registra backup no banco
             db.run("INSERT INTO backups (filename) VALUES (?)", [backupFilename], (err) => {
                 if (err) {
                     console.error("Failed to log backup:", err);
