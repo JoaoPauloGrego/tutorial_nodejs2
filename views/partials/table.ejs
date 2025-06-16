@@ -6,43 +6,63 @@
       <th>Título</th>
       <th>Conteúdo</th>
       <th>Data</th>
+      <% if (isAdmin) { %>
+        <th>Ações</th>
+      <% } %>
     </tr>
   </thead>
   <tbody>
     <% if (posts && posts.length > 0) { %>
       <% posts.forEach(post => { %>
-        <tr>
+        <tr class="clickable-row" data-id="<%= post.id %>">
           <td><%= post.id %></td>
           <td><%= post.username || post.iduser %></td>
           <td><%= post.title %></td>
-          <td><%= post.content %></td>
           <td>
-            <%
+            <div class="content-preview">
+              <% 
+                const contentPreview = post.content.length > 100 
+                  ? post.content.substring(0, 100) + '...' 
+                  : post.content;
+              %>
+              <%= contentPreview %>
+            </div>
+          </td>
+          <td>
+            <% 
               try {
                 const dateObj = new Date(post.datepost);
                 if (isNaN(dateObj.getTime())) {
-                  // Se a data for inválida, mostra mensagem
-                  %><span style="color:red">Data inválida</span><%
+                  %><span class="date-error">Data inválida</span><%
                 } else {
-                  // Formata a data corretamente
-                  %><%= dateObj.toLocaleDateString('pt-BR') %><%
+                  %><span class="post-date"><%= dateObj.toLocaleDateString('pt-BR') %></span><%
                 }
               } catch (e) {
-                %><span style="color:red">Erro de data</span><%
+                %><span class="date-error">Erro de data</span><%
               }
             %>
           </td>
+          <% if (isAdmin) { %>
+            <td class="actions">
+              <a href="/post_edit/<%= post.id %>" class="edit-icon" title="Editar">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </a>
+            </td>
+          <% } %>
         </tr>
       <% }); %>
     <% } else { %>
       <tr>
-        <td colspan="5" class="no-posts">Nenhum post encontrado</td>
+        <td colspan="<%= isAdmin ? 6 : 5 %>" class="no-posts">Nenhum post encontrado</td>
       </tr>
     <% } %>
   </tbody>
   <tfoot>
     <tr>
-      <td colspan="5">
+      <td colspan="<%= isAdmin ? 6 : 5 %>">
         Total de posts: <strong><%= posts ? posts.length : 0 %></strong>
       </td>
     </tr>
@@ -72,10 +92,25 @@
     padding: 12px 15px;
     border-bottom: 1px solid #e9ecef;
     color: #495057;
+    position: relative;
   }
 
-  .view-only-table tbody tr:hover {
+  .clickable-row {
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .clickable-row:hover {
     background-color: #f8f9fa;
+  }
+
+  .content-preview {
+    max-height: 3.6em;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
   }
 
   .view-only-table tfoot {
@@ -95,6 +130,15 @@
     font-style: italic;
   }
 
+  .date-error {
+    color: #dc3545;
+    font-size: 0.85em;
+  }
+
+  .post-date {
+    white-space: nowrap;
+  }
+
   @media (max-width: 768px) {
     .view-only-table {
       font-size: 0.8rem;
@@ -104,5 +148,69 @@
     .view-only-table td {
       padding: 8px 10px;
     }
+    
+    .content-preview {
+      -webkit-line-clamp: 2;
+      max-height: 2.4em;
+    }
   }
+  /* Na partial table.ejs ou no CSS principal */
+.view-only-table a {
+  color: #007bff;
+  text-decoration: none;
+  display: block;
+  padding: 8px 0;
+}
+
+.view-only-table a:hover {
+  color: #0056b3;
+  text-decoration: underline;
+}
+
+.clickable-row {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.clickable-row:hover {
+  background-color: #f8f9fa;
+}
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.edit-icon {
+  color: #007bff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.edit-icon:hover {
+  background-color: #e6f0ff;
+  transform: scale(1.1);
+}
+
+.edit-icon svg {
+  width: 18px;
+  height: 18px;
+}
 </style>
+
+<script>
+  // Tornar linhas clicáveis
+  document.querySelectorAll('.clickable-row').forEach(row => {
+    row.addEventListener('click', (e) => {
+      // Evitar redirecionamento se clicou em um link interno
+      if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+      
+      const postId = row.getAttribute('data-id');
+      window.location.href = `/post/${postId}`;
+    });
+  });
+</script>
