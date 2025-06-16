@@ -1,0 +1,260 @@
+<!-- views/pages/posts_management.ejs -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<%- include("../partials/head") %>
+
+<body>
+    <a href="/modify">Voltar ao Painel Admin</a>
+    <div class="admin-container">
+        <h1>Gerenciamento de Posts</h1>
+
+        <div class="filters">
+            <input type="text" id="search-posts" placeholder="Buscar posts...">
+            <select id="author-filter">
+                <option value="">Todos os autores</option>
+                <% users.forEach(user=> { %>
+                    <option value="<%= user.id %>">
+                        <%= user.username %>
+                    </option>
+                <% }); %>
+            </select>
+        </div>
+
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Autor</th>
+                    <th>Data</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% posts.forEach(post=> { %>
+                    <tr data-author-id="<%= post.iduser %>">
+                        <td><%= post.id %></td>
+                        <td><%= post.title %></td>
+                        <td><%= post.username %></td>
+                        <td><%= new Date(post.datepost).toLocaleDateString() %></td>
+                        <td class="actions">
+                            <a href="/post_edit/<%= post.id %>" class="btn-edit">Editar</a>
+                            <form action="/delete_post_admin" method="post" style="display:inline;">
+                                <input type="hidden" name="postId" value="<%= post.id %>">
+                                <button type="submit" class="btn-delete">Excluir</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Filtros de busca
+        document.getElementById('search-posts').addEventListener('input', function() {
+            filterPosts();
+        });
+
+        document.getElementById('author-filter').addEventListener('change', function() {
+            filterPosts();
+        });
+
+        function filterPosts() {
+            const searchTerm = document.getElementById('search-posts').value.toLowerCase();
+            const authorId = document.getElementById('author-filter').value;
+            const rows = document.querySelectorAll('tbody tr');
+            
+            rows.forEach(row => {
+                const title = row.cells[1].textContent.toLowerCase();
+                const rowAuthorId = row.dataset.authorId;
+                const matchesSearch = title.includes(searchTerm);
+                const matchesAuthor = authorId === '' || rowAuthorId === authorId;
+                
+                row.style.display = matchesSearch && matchesAuthor ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+
+<style>
+    body {
+        background-color: #f0f2f5;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .admin-container {
+        background-color: white;
+        padding: 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 1200px;
+        margin: 40px 0;
+    }
+
+    h1 {
+        color: #1a1a1a;
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 3px solid #007bff;
+    }
+
+    /* Link Voltar */
+    a[href="/modify"] {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 8px 16px;
+        background-color: #6c757d;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+    }
+    
+    a[href="/modify"]:hover {
+        background-color: #5a6268;
+    }
+
+    /* Filtros */
+    .filters {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .filters input {
+        padding: 8px 12px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    .filters select {
+        padding: 8px 12px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        min-width: 200px;
+    }
+
+    /* Tabela */
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 25px 0;
+        font-size: 0.9em;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    .admin-table th {
+        background-color: #f8f9fa;
+        color: #495057;
+        text-align: left;
+        font-weight: 600;
+        padding: 12px 15px;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .admin-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #e9ecef;
+        color: #495057;
+    }
+    
+    .admin-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    /* Ações */
+    .actions {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .btn-edit,
+    .btn-delete {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+    
+    .btn-edit {
+        background-color: #17a2b8;
+        color: white;
+    }
+    
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .btn-edit:hover {
+        background-color: #138496;
+    }
+    
+    .btn-delete:hover {
+        background-color: #c82333;
+    }
+    
+    form {
+        display: inline;
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+        .admin-container {
+            padding: 1.5rem;
+            margin: 20px 15px;
+        }
+        
+        h1 {
+            font-size: 2rem;
+        }
+        
+        .filters {
+            flex-direction: column;
+        }
+        
+        .filters input,
+        .filters select {
+            width: 100%;
+        }
+        
+        .admin-table {
+            font-size: 0.8rem;
+        }
+        
+        .admin-table th,
+        .admin-table td {
+            padding: 8px 10px;
+        }
+        
+        .actions {
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .btn-edit,
+        .btn-delete {
+            width: 100%;
+            text-align: center;
+        }
+    }
+</style>

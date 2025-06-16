@@ -1,110 +1,147 @@
-<main>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<%- include("../partials/head") %>
+<body>
+  <main>
     <%- include("../partials/menu") %>
-        <br>
-        <form action="/post_create" method="post">
-            <label for="titulo">Título: </label>
-            <input id="title" name="title" required>
-            <label for="content"></label><br><br>
-            <textarea id="content" name="content" rows="10" cols="60" required></textarea>
-            <br><br>
-            <button type="submit">Postar</button>
-        </form>
-</main>
+    
+    <% if (typeof errors !== 'undefined' && errors.length) { %>
+      <div class="alert error">
+        <ul>
+          <% errors.forEach(error => { %>
+            <li><%= error.msg %></li>
+          <% }); %>
+        </ul>
+      </div>
+    <% } %>
+    
+    <br>
+    <div class="post-container">
+      <h1 class="main-title">Criar Nova Postagem</h1>
+      <form action="/post_create" method="post">
+        <div class="form-group">
+          <label for="title">Título</label>
+          <input 
+            type="text" 
+            name="title" 
+            id="title"
+            value="<%= oldInput && oldInput.title ? oldInput.title : '' %>" 
+            required
+            class="form-input">
+        </div>
+
+        <div class="form-group">
+          <label for="content">Conteúdo</label>
+          <textarea 
+            name="content" 
+            id="content" 
+            rows="8"
+            required
+            class="form-input"><%= oldInput && oldInput.content ? oldInput.content : '' %></textarea>
+        </div>
+
+        <button type="submit" class="cta-button">Criar Post</button>
+      </form>
+    </div>
+  </main>
+</body>
+
 <style>
-    body {
-        background-color: #f0f2f5;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-height: 100vh;
-        margin: 0;
-        padding: 20px;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
+  body {
+    background-color: #f0f2f5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
 
+  .post-container {
+    background-color: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+    margin: 40px 0;
+  }
+
+  .main-title {
+    color: #1a1a1a;
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid #007bff;
+    text-align: center;
+  }
+
+  .form-group {
+    display: grid;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-label {
+    font-weight: 500;
+    color: #333;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+  }
+
+  textarea.form-input {
+    resize: vertical;
+    min-height: 150px;
+  }
+
+  .cta-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .cta-button:hover {
+    background-color: #0056b3;
+  }
+
+  .alert.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 480px) {
     .post-container {
-        background-color: white;
-        padding: 2.5rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        width: 100%;
-        max-width: 600px;
-        margin: 40px 0;
-    }
-
-    .main-title {
-        color: #1a1a1a;
-        font-size: 2rem;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 3px solid #007bff;
-        text-align: center;
-    }
-
-    .post-form {
-        display: grid;
-        gap: 1.5rem;
-    }
-
-    .form-group {
-        display: grid;
-        gap: 0.5rem;
-    }
-
-    .form-label {
-        font-weight: 500;
-        color: #333;
+      padding: 1.5rem;
+      margin: 20px 15px;
     }
 
     .form-input {
-        width: 100%;
-        padding: 12px;
-        border: 2px solid #e0e0e0;
-        border-radius: 6px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
+      padding: 10px;
     }
-
-    .form-input:focus {
-        border-color: #007bff;
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-    }
-
-    textarea.form-input {
-        resize: vertical;
-        min-height: 150px;
-    }
-
-    .cta-button {
-        width: 100%;
-        padding: 12px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-size: 1rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .cta-button:hover {
-        background-color: #0056b3;
-    }
-
-    label[for="content"] {
-        display: none;
-    }
-
-    @media (max-width: 480px) {
-        .post-container {
-            padding: 1.5rem;
-            margin: 20px 15px;
-        }
-
-        .form-input {
-            padding: 10px;
-        }
-    }
+  }
 </style>
+</html>
