@@ -8,7 +8,19 @@
         <h1>Ferramentas do Sistema</h1>
         <p>Bem-vindo(a), <%= req.session.username %>!</p>
 
-        
+        <div class="tool-card">
+            <h3>Backup do Banco de Dados</h3>
+            <form action="/backup_db" method="post">
+                <button type="submit" class="btn-backup">Gerar Backup Agora</button>
+            </form>
+
+            <% if (lastBackup) { %>
+                <p>Último backup: <%= new Date(lastBackup).toLocaleString() %></p>
+            <% } else { %>
+                <p>Nenhum backup realizado ainda</p>
+            <% } %>
+        </div>
+
         <div class="tool-card">
             <h3>Estatísticas do Sistema</h3>
             <ul class="stats-list">
@@ -16,6 +28,21 @@
                 <li>Administradores: <strong><%= adminCount %></strong></li>
                 <li>Posts publicados: <strong><%= postCount %></strong></li>
             </ul>
+        </div>
+
+        <div class="tool-card">
+            <h3>Logs de Atividade</h3>
+            <div class="logs-container">
+                <% if (logs && logs.length > 0) { %>
+                    <% logs.forEach(log => { %>
+                        <div class="log-entry">
+                            [<%= new Date(log.timestamp).toLocaleString() %>] <%= log.message %>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <p>Nenhum log disponível</p>
+                <% } %>
+            </div>
         </div>
     </div>
 </body>
