@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+<<<<<<< HEAD
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -357,3 +358,398 @@
     </div>
 </body>
 </html>
+=======
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%- post.title %></title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+        color: #333;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 40px auto;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+      }
+
+      .site-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+        text-decoration: none;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #3498db 0%, #1a5276 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
+      }
+
+      .username {
+        font-weight: 600;
+        color: #2c3e50;
+      }
+
+      .post-container {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        margin-bottom: 30px;
+      }
+
+      .post-header {
+        background: linear-gradient(135deg, #3498db 0%, #1a5276 100%);
+        padding: 40px 40px 30px;
+        color: white;
+      }
+
+      .post-title {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+        line-height: 1.3;
+      }
+
+      .post-meta {
+        display: flex;
+        gap: 30px;
+        font-size: 1rem;
+        opacity: 0.9;
+        margin-top: 20px;
+      }
+
+      .post-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .post-content {
+        padding: 40px;
+        line-height: 1.8;
+        font-size: 1.1rem;
+        color: #333;
+      }
+
+      .post-content p {
+        margin-bottom: 25px;
+      }
+
+      .post-content img {
+        max-width: 100%;
+        border-radius: 8px;
+        margin: 20px 0;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .post-actions {
+        display: flex;
+        justify-content: space-between;
+        padding: 20px 40px;
+        border-top: 1px solid #eee;
+        background: #f9fbfd;
+      }
+
+      .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 25px;
+        background: #3498db;
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+        box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11),
+          0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+
+      .back-button:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1),
+          0 3px 6px rgba(0, 0, 0, 0.08);
+      }
+
+      .admin-actions {
+        display: flex;
+        gap: 15px;
+      }
+
+      .edit-button,
+      .delete-button {
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        transition: all 0.3s;
+      }
+
+      .edit-button {
+        background: #f39c12;
+        color: white;
+      }
+
+      .edit-button:hover {
+        background: #e67e22;
+      }
+
+      .delete-button {
+        background: #e74c3c;
+        color: white;
+      }
+
+      .delete-button:hover {
+        background: #c0392b;
+      }
+
+      .related-posts {
+        margin-top: 50px;
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        margin-bottom: 25px;
+        color: #2c3e50;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #3498db;
+      }
+
+      .post-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 25px;
+      }
+
+      .post-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s, box-shadow 0.3s;
+      }
+
+      .post-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .post-card-img {
+        height: 160px;
+        background: linear-gradient(135deg, #3498db 0%, #1a5276 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+      }
+
+      .post-card-content {
+        padding: 20px;
+      }
+
+      .post-card-title {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        color: #2c3e50;
+      }
+
+      .post-card-meta {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .footer {
+        text-align: center;
+        padding: 30px 0;
+        color: #7f8c8d;
+        font-size: 0.9rem;
+        border-top: 1px solid #eee;
+        margin-top: 50px;
+      }
+
+      /* Responsividade */
+      @media (max-width: 768px) {
+        .post-header {
+          padding: 30px 20px;
+        }
+
+        .post-title {
+          font-size: 2rem;
+        }
+
+        .post-content {
+          padding: 30px 20px;
+        }
+
+        .post-meta {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .post-actions {
+          flex-direction: column;
+          gap: 15px;
+          padding: 20px;
+        }
+
+        .admin-actions {
+          width: 100%;
+          justify-content: space-between;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .header {
+          flex-direction: column;
+          gap: 15px;
+          text-align: center;
+        }
+
+        .post-title {
+          font-size: 1.7rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <a href="/index2" class="site-title">Meu Blog</a>
+        <% if (req.session.loggedin) { %>
+        <div class="user-info">
+          <div class="user-avatar">
+            <%= req.session.username.charAt(0).toUpperCase() %>
+          </div>
+          <div class="username"><%= req.session.username %></div>
+        </div>
+        <% } %>
+      </header>
+
+      <div class="post-container">
+        <div class="post-header">
+          <h1 class="post-title"><%- post.title %></h1>
+
+          <div class="post-meta">
+            <div class="post-meta-item">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span><%- post.username %></span>
+            </div>
+
+            <div class="post-meta-item">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span><%- formatDate(post.datepost) %></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="post-content">
+          <%- post.content.replace(/\n/g, '<br />') %>
+        </div>
+
+        <div class="post-actions">
+          <a href="/dashboard2" class="back-button">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Voltar para a lista
+          </a>
+
+          <% if (req.session.loggedin && (req.session.id_username == post.iduser
+          || req.session.role === 'admin')) { %>
+          <div class="admin-actions">
+            <a href="/post_edit/<%= post.id %>" class="edit-button"
+              >Editar Post</a
+            >
+            <form action="/post_delete" method="post" style="display: inline">
+              <input type="hidden" name="postId" value="<%= post.id %>" />
+              <button type="submit" class="delete-button">Excluir</button>
+            </form>
+          </div>
+          <% } %>
+        </div>
+      </div>
+
+      <footer class="footer">
+        © 2023 Meu Blog - Todos os direitos reservados
+      </footer>
+    </div>
+  </body>
+</html>
+>>>>>>> 10283021c4b033cd5c611cf0c3a921c24c075263

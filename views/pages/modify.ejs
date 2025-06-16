@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <%- include("../partials/head") %>
 
+<<<<<<< HEAD
     <body>
         <a href="./index2">Voltar</a>
         <div class="admin-container">
@@ -164,16 +165,70 @@
                     </div>
                 </div>
             </div>
+=======
+<body>
+    <a href="./index2">Voltar</a>
+    <div class="admin-container">
+        <h1>Painel de Administração</h1>
+        <p>Bem-vindo(a), <%= req.session.username %>!</p>
+<body>
+    <a href="./index2">Voltar</a>
+    <div class="admin-container">
+        <h1>Painel de Administração</h1>
+        <p>Bem-vindo(a), <%= req.session.username %>!</p>
+
+        <div class="admin-links">
+            <a href="/modify" class="active">Usuários</a>
+            <a href="/modify/posts">Posts</a>
+            <a href="/modify/tools">Ferramentas</a>
+        </div>
+        <div class="admin-links">
+            <a href="/modify" class="active">Usuários</a>
+            <a href="/modify/posts">Posts</a>
+>>>>>>> 10283021c4b033cd5c611cf0c3a921c24c075263
         </div>
 
-        <script>
-            // Controle das abas
-            document.querySelectorAll('.tab-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    // Ativa a aba clicada
-                    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
+        <h2>Gerenciamento de Usuários</h2>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Tipo</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% users.forEach(user => { %>
+                <tr>
+                    <td><%= user.id %></td>
+                    <td><%= user.username %></td>
+                    <td><%= user.role %></td>
+                    <td class="actions">
+                        <% if (user.role === 'normal') { %>
+                        <form action="/promote_user" method="post">
+                            <input type="hidden" name="userId" value="<%= user.id %>" />
+                            <button type="submit" class="btn-promote">Tornar Admin</button>
+                        </form>
+                        <% } else if (user.id !== 1) { %>
+                        <form action="/demote_user" method="post">
+                            <input type="hidden" name="userId" value="<%= user.id %>" />
+                            <button type="submit" class="btn-demote">Rebaixar</button>
+                        </form>
+                        <% } %>
+                        <% if (user.id !== 1) { %>
+                        <form action="/delete_user" method="post">
+                            <input type="hidden" name="userId" value="<%= user.id %>" />
+                            <button type="submit" class="btn-delete">Excluir</button>
+                        </form>
+                        <% } %>
+                    </td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
 
+<<<<<<< HEAD
                     // Mostra o conteúdo correspondente
                     document.querySelectorAll('.tab-pane').forEach(pane => {
                         pane.classList.remove('active');
@@ -196,6 +251,252 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
+=======
+        <div class="stats-summary">
+            <h3>Resumo do Sistema</h3>
+            <ul>
+                <li>Total de usuários: <strong><%= userCount %></strong></li>
+                <li>Administradores: <strong><%= adminCount %></strong></li>
+            </ul>
+        <h2>Gerenciamento de Usuários</h2>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Tipo</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% users.forEach(user => { %>
+                <tr>
+                    <td><%= user.id %></td>
+                    <td><%= user.username %></td>
+                    <td><%= user.role %></td>
+                    <td class="actions">
+                        <% if (user.role === 'normal') { %>
+                        <form action="/promote_user" method="post">
+                            <input type="hidden" name="userId" value="<%= user.id %>" />
+                            <button type="submit" class="btn-promote">Tornar Admin</button>
+                        </form>
+                        <% } else if (user.id !== 1) { %>
+                        <form action="/demote_user" method="post">
+                            <input type="hidden" name="userId" value="<%= user.id %>" />
+                            <button type="submit" class="btn-demote">Rebaixar</button>
+                        </form>
+                        <% } %>
+                        <% if (user.id !== 1) { %>
+                        <form action="/delete_user" method="post">
+                            <input type="hidden" name="userId" value="<%= user.id %>" />
+                            <button type="submit" class="btn-delete">Excluir</button>
+                        </form>
+                        <% } %>
+                    </td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+
+        <div class="stats-summary">
+            <h3>Resumo do Sistema</h3>
+            <ul>
+                <li>Total de usuários: <strong><%= userCount %></strong></li>
+                <li>Administradores: <strong><%= adminCount %></strong></li>
+            </ul>
+        </div>
+    </div>
+</body>
+
+<style>
+    /* Estilos base */
+    </div>
+</body>
+
+<style>
+    /* Estilos base */
+    body {
+        background-color: #f0f2f5;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .admin-container {
+        background-color: white;
+        padding: 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 1200px;
+        margin: 40px 0;
+    }
+
+    .admin-container h1 {
+        color: #1a1a1a;
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 3px solid #007bff;
+    }
+
+    .admin-links {
+    .admin-links {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+    }
+
+    .admin-links a {
+    .admin-links a {
+        padding: 10px 20px;
+        background-color: #f5f7fa;
+        border: none;
+        border-radius: 6px;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #555;
+        text-decoration: none;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .admin-links a:hover {
+    .admin-links a:hover {
+        background-color: #e6f0ff;
+        color: #007bff;
+    }
+
+    .admin-links a.active {
+    .admin-links a.active {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 25px 0;
+        font-size: 0.9em;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .admin-table th {
+        background-color: #f8f9fa;
+        color: #495057;
+        text-align: left;
+        font-weight: 600;
+        padding: 12px 15px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .admin-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #e9ecef;
+        color: #495057;
+    }
+
+    .admin-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        flex-wrap: wrap;
+    }
+
+    .btn-promote,
+    .btn-demote,
+    .btn-delete {
+    .btn-promote,
+    .btn-demote,
+    .btn-delete {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .btn-promote {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-demote {
+        background-color: #ffc107;
+        color: #212529;
+    }
+
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-promote:hover {
+        background-color: #218838;
+    }
+
+    .btn-demote:hover {
+        background-color: #e0a800;
+    }
+
+    .btn-delete:hover {
+        background-color: #c82333;
+    }
+
+    .stats-summary {
+        margin-top: 30px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .stats-summary h3 {
+        margin-top: 0;
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 10px;
+    .stats-summary {
+        margin-top: 30px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .stats-summary h3 {
+        margin-top: 0;
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 10px;
+    }
+
+    .stats-summary ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .stats-summary li {
+        padding: 8px 0;
+    .stats-summary ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .stats-summary li {
+        padding: 8px 0;
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+>>>>>>> 10283021c4b033cd5c611cf0c3a921c24c075263
         .admin-container {
             background-color: white;
             padding: 2.5rem;
@@ -214,6 +515,7 @@
             border-bottom: 3px solid #007bff;
         }
 
+<<<<<<< HEAD
         /* Componentes específicos do painel admin */
         .admin-tabs {
             display: flex;
@@ -243,6 +545,24 @@
         .tab-btn.active {
             background-color: #007bff;
             color: white;
+=======
+        .admin-links {
+        .admin-links {
+            flex-wrap: wrap;
+        }
+
+        .admin-links a {
+        .admin-links a {
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .actions {
+            flex-direction: column;
+            gap: 5px;
+>>>>>>> 10283021c4b033cd5c611cf0c3a921c24c075263
         }
 
         .tab-pane {
@@ -261,6 +581,7 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
 
+<<<<<<< HEAD
         .admin-table th {
             background-color: #f8f9fa;
             color: #495057;
@@ -468,4 +789,13 @@
         }
     </style>
 
+=======
+        .admin-table th,
+        .admin-table th,
+        .admin-table td {
+            padding: 8px 10px;
+        }
+    }
+</style>
+>>>>>>> 10283021c4b033cd5c611cf0c3a921c24c075263
 </html>

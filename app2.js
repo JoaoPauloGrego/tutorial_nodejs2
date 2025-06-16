@@ -189,6 +189,7 @@ app.post("/login2", [
     });
 });
 
+<<<<<<< HEAD
 // Rotas protegidas
 app.get("/dashboard2", (req, res) => {
     if (!req.session.loggedin) return res.redirect("/unauthorized2");
@@ -286,6 +287,18 @@ app.post("/post_create", [
             errors: errors.array(),
             oldInput: req.body
         });
+=======
+app.get("/post_create", (req, res) => {
+    console.log("GET /post_create");
+    
+    if (req.session.loggedin) {
+        res.render("pages/post_form", { 
+            titulo: "Criar Postagem",
+            req: req,
+            errors: errors.array(),
+            oldInput: req.body
+        });
+>>>>>>> 10283021c4b033cd5c611cf0c3a921c24c075263
     }
 
     if (!req.session.loggedin || !req.session.id_username) {
@@ -466,6 +479,7 @@ app.get("/posts_management", (req, res) => {
             return res.redirect("/unauthorized2");
         }
 
+<<<<<<< HEAD
         db.all("SELECT id, username FROM users", [], (err, users) => {
             if (err) {
                 console.error(err);
@@ -479,6 +493,38 @@ app.get("/posts_management", (req, res) => {
                 req: req
             });
         });
+=======
+// Excluir post (pelo admin)
+app.post("/delete_post_admin", (req, res) => {
+    if (req.session.role === 'admin') {
+        const postId = req.body.postId;
+        db.run("DELETE FROM posts WHERE id=?", [postId], (err) => {
+            logAction(req.session.username, `Excluiu post ${postId}`);
+            res.redirect("/modify#posts-tab");
+        });
+    }
+});
+
+// Função para registrar ações (simplificada)
+function logAction(username, action) {
+    const timestamp = new Date().toISOString();
+    console.log(`[ADMIN ACTION] ${timestamp} | ${username}: ${action}`);
+    // Implementar: salvar em tabela de logs no banco
+}
+app.post("/post_delete", (req, res) => {
+    if (!req.session.loggedin || req.session.role !== 'admin') {
+        return res.redirect("/unauthorized2");
+    }
+
+    const postId = req.body.postId;
+    db.run("DELETE FROM posts WHERE id = ?", [postId], (err) => {
+        if (err) {
+            console.error(err);
+            res.send("Erro ao deletar post");
+        } else {
+            res.redirect("/dashboard2");
+        }
+>>>>>>> 10283021c4b033cd5c611cf0c3a921c24c075263
     });
 });
 
@@ -567,6 +613,13 @@ app.get('/ver-cookie', (req, res) => {
 app.use((req, res) => {
     res.status(404).render('pages/erro', { titulo: "ERRO 404", req: req, msg: "404" });
 });
+<<<<<<< HEAD
+=======
+const fs = require('fs');
+const path = require('path');
+
+
+>>>>>>> 10283021c4b033cd5c611cf0c3a921c24c075263
 
 // Iniciar servidor
 app.listen(port, () => {

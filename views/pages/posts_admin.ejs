@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<%- include("../partials/head") %>
+
+<body>
+    <a href="/modify">← Voltar ao Painel Admin</a>
+    <div class="admin-container">
+        <h1>Gerenciamento de Posts</h1>
+        <p>Bem-vindo(a), <%= req.session.username %>!</p>
+
+        <div class="filters">
+            <input type="text" id="search-posts" placeholder="Buscar posts...">
+            <select id="author-filter">
+                <option value="">Todos os autores</option>
+                <% // Você precisaria passar os usuários para esta página também %>
+            </select>
+        </div>
+
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Autor</th>
+                    <th>Data</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% posts.forEach(post => { %>
+                <tr>
+                    <td><%= post.id %></td>
+                    <td><%= post.title %></td>
+                    <td><%= post.username %></td>
+                    <td><%= new Date(post.datepost).toLocaleDateString() %></td>
+                    <td class="actions">
+                        <a href="/post_edit/<%= post.id %>" class="btn-edit">Editar</a>
+                        <form action="/delete_post_admin" method="post" style="display: inline;">
+                            <input type="hidden" name="postId" value="<%= post.id %>">
+                            <button type="submit" class="btn-delete">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+<style>
+    /* Estilos base */
+    body {
+        background-color: #f0f2f5;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .admin-container {
+        background-color: white;
+        padding: 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 1200px;
+        margin: 40px 0;
+    }
+
+    .admin-container h1 {
+        color: #1a1a1a;
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 3px solid #007bff;
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 25px 0;
+        font-size: 0.9em;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .admin-table th {
+        background-color: #f8f9fa;
+        color: #495057;
+        text-align: left;
+        font-weight: 600;
+        padding: 12px 15px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .admin-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #e9ecef;
+        color: #495057;
+    }
+
+    .admin-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-edit,
+    .btn-delete {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .btn-edit {
+        background-color: #17a2b8;
+        color: white;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-edit:hover {
+        background-color: #138496;
+    }
+
+    .btn-delete:hover {
+        background-color: #c82333;
+    }
+
+    .filters {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        align-items: center;
+    }
+
+    .filters input,
+    .filters select {
+        padding: 8px 12px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 0.9rem;
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+        .admin-container {
+            padding: 1.5rem;
+            margin: 20px 15px;
+        }
+
+        .admin-container h1 {
+            font-size: 2rem;
+        }
+
+        .filters {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .actions {
+            flex-direction: column;
+            gap: 5px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .admin-container h1 {
+            font-size: 1.75rem;
+        }
+
+        .admin-table {
+            font-size: 0.8rem;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            padding: 8px 10px;
+        }
+    }
+</style>
+</html>
